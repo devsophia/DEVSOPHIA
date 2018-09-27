@@ -24,11 +24,12 @@ public:
 
 Student::Student(ifstream &inp, int StuNum)
 	: StuNum(StuNum) {
-	int score;
+	int score, i=0;
 	do {
 		inp >> score;
 		if(score == -1) break;
 		this->Scores.push_back(score);
+		++i;
 	} while(true);
 	this->AssNum = this->Scores.size();
 	sort(this->Scores.begin(), this->Scores.end()); // 학생 개개인의 점수를 오름차순으로 미리 정렬
@@ -42,12 +43,12 @@ public:
 	void print(ofstream &out); // 정렬된 학생들의 번호를 순서대로 출력
 };
 
-bool myfunction(Student a, Student b); // 학생들을 문제에 제시된 기준에 따라 정렬하기 위한 generic sort 함수
+bool compare(const Student &a, const Student &b); // 학생들을 문제에 제시된 기준에 따라 정렬하기 위한 generic sort 함수
 
 Class::Class(ifstream &inp, int num) {
 	for(int i=1; i<=num; ++i)
 		this->Students.push_back(Student(inp, i));
-	sort(this->Students.begin(), this->Students.end(), myfunction); // 위의 함수에 따라 정렬
+	sort(this->Students.begin(), this->Students.end(), compare); // 위의 함수에 따라 정렬
 }
 void Class::print(ofstream &out) {
 	vector<Student>::iterator i;
@@ -56,17 +57,18 @@ void Class::print(ofstream &out) {
 	}
 };
 
-bool myfunction(Student a, Student b) {
+bool compare(const Student &a, const Student &b) {
 	if(a.getAssNum() != b.getAssNum())
-		return (a.getAssNum() > b.getAssNum());
+		return (a.getAssNum() > b.getAssNum()); // 제출횟수가 다른 경우
 	else {
-		int i=0;
-		while(a.getIthScore(i)==b.getIthScore(i) && i<a.getAssNum())
-			++i;
-		if(a.getIthScore(i) != b.getIthScore(i))
-			return (a.getIthScore(i) > b.getIthScore(i));
+		int k=0, end;
+		end = a.getAssNum() - 1;
+		while(k <= end && (a.getIthScore(k) == b.getIthScore(k)))
+			++k;
+		if(k <= end)
+			return a.getIthScore(k) > b.getIthScore(k); // 제출횟수는 같지만 최저점수가 다른 경우
 		else
-			return (a.getStuNum() > b.getStuNum());
+			return a.getStuNum() < b.getStuNum(); // 제출횟수와 점수가 모두 같은 경우
 	}
 }
 
