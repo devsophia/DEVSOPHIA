@@ -2,7 +2,8 @@
 
 int main()
 {
-	int x = 0x01;
-	printf("x << 31 = %X", x << 31);
+	int n = 0;
+	int x = -3;
+	printf("%d\n", (x>>(n + ~0x0) & 0x1));
 	return 0;
 }

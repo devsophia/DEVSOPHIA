@@ -259,30 +259,54 @@ int bang(int x) {
  *   Rating: 1
  */
 int tmin(void) {
-  return 2;
+	int ret;
+	ret = 0x1;
+	ret = ret << 31;
+  return ret;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
  *  n-bit, two's complement integer.
  *   1 <= n <= 32
  *   Examples: fitsBits(5,3) = 0, fitsBits(-4,3) = 1
+3비트로 표현할 수 있는 최대수 : 011(3), 최소수 : 100(-4)
+8 = 1000, -4 = 100(3비트 이상 0이 있으면 안됨) -5 = 1011
+양수는 n비트 이상의 위치에서 모두 0이어야 하고,
+음수는 n비트 이상의 위치에서 모두 1이어야 함.
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 15
  *   Rating: 2
+1111 1111 1111 1111 1111 1111 1111 0111 = -9
  */
 int fitsBits(int x, int n) {
-  return 2;
+	int ThTwoMinusN = 33 + ~n;
+	int op = (x << ThTwoMinusN) >> ThTwoMinusN;
+	return !(x ^ op);
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
  *  Round toward zero
  *   Examples: divpwr2(15,1) = 7, divpwr2(-33,4) = -2
+-33 = (0100001) = 110 
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 15
  *   Rating: 2
+if(n == 0)
+	return x >> n;
+else if(x >= 0)
+	return x >> n;
+else if(0x1 & (x >> n-1) == 1)
+	return x >> n + 1;
+else
+	return x >> n;
  */
 int divpwr2(int x, int n) {
-    return 2;
+	int ret,s, z, round;
+	s = (x >> 31) & 0x1; // x>=0이면 0, x<0이면 1
+	z = !(0x0 | n); // n이 0이면 1, 0이 아니면 0
+	round = !((x << (32+(~n+1)))); // roundbit이 1이면 1, 아니면 0
+	ret = (x >> n) + (s & (!z) &(!round));
+	return ret;
 }
 /* 
  * negate - return -x 
