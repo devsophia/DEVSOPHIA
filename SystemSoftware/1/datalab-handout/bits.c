@@ -341,7 +341,13 @@ int isPositive(int x) { // 01111111111
  *   Max ops: 24
  *   Rating: 3
  */
-int isLessOrEqual(int x, int y) { // y + negate(x) 양 양 음 음 양 음 음 양
+int isLessOrEqual(int x, int y) { // 부호가 다르면 양수가 크고, 부호가 같으면
+	int signX, signY, isDiff, isYBig;
+	signX = (x >> 31) & 0x1;
+	signY = (y >> 31) & 0x1;
+	isDiff = signX ^ signY;
+	isYBig = isDiff & signX;
+	return (isDiff & isYBig) | ((!isDiff) & !(((y + (~x+0x1)) >> 31) & 0x1));
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
@@ -350,8 +356,28 @@ int isLessOrEqual(int x, int y) { // y + negate(x) 양 양 음 음 양 음 음 �
  *   Max ops: 90
  *   Rating: 4
  */
-int ilog2(int x) {
-  return 2;
+int ilog2(int x) { // 16 = ...0111111110
+	int rightOne, mask, eachCount, count;
+	rightOne = x | (x >> 1);
+	rightOne |= rightOne >> 2;
+	rightOne |= rightOne >> 4;
+	rightOne |= rightOne >> 8;
+	rightOne |= rightOne >> 16;
+	mask = 0x1;
+	mask |= mask << 8;
+	mask |= mask << 16;
+	eachCount = rightOne & mask;
+	eachCount += (rightOne >> 1) & mask;
+	eachCount += (rightOne >> 2) & mask;
+	eachCount += (rightOne >> 3) & mask;
+	eachCount += (rightOne >> 4) & mask;
+	eachCount += (rightOne >> 5) & mask;
+	eachCount += (rightOne >> 6) & mask;
+	eachCount += (rightOne >> 7) & mask;
+	eachCount += eachCount >> 16;
+	eachCount += eachCount >> 8;
+	count = eachCount & 0xff;
+  return count + (~0x0);
 }
 /* 
  * float_neg - Return bit-level equivalent of expression -f for
@@ -365,7 +391,14 @@ int ilog2(int x) {
  *   Rating: 2
  */
 unsigned float_neg(unsigned uf) {
- return 2;
+	int exp, frac;
+	exp = uf & (0xff << 23);
+	frac = uf & 0x7fffff;
+
+	if(exp == (0xff << 23) && frac)
+		return uf;
+
+	return uf ^ (0x1 << 31);
 }
 /* 
  * float_i2f - Return bit-level equivalent of expression (float) x
@@ -377,7 +410,40 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
-  return 2;
+	int sign, Bias, exp, E, tx, frac, t, n, rest, comp, LSB;
+	t = 0x80000000;
+	Bias = 127;
+	sign = x & t;
+	if(x == 0)
+		return 0x0;
+	if(x == 0x80000000)
+		return 0xcf000000;
+	if(sign)
+		x = -x;
+	tx = x;
+	t = 0x40000000;
+	E = 0;
+	while(tx /= 2)
+		++E;
+	exp = (E + Bias) << 23;
+
+	if(E < 23)
+		frac = (x << (23 - E)) & 0x7fffff;
+	else if(E > 23) {
+		n = E - 23;
+		frac = (x >> n) & 0x7fffff;
+		rest = 0x1;
+		while(--n)
+			rest |= rest << 1;
+		rest &= x;
+		comp = 0x1 << (E-24);
+		if(rest > comp || ((rest == comp) && ((comp << 1) & x)))
+			frac++;
+	}
+	else
+		frac = x & 0x7fffff;
+	
+	return sign + exp + frac;
 }
 /* 
  * float_twice - Return bit-level equivalent of expression 2*f for
