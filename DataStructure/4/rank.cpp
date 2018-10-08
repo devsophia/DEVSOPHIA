@@ -24,12 +24,11 @@ public:
 
 Student::Student(ifstream &inp, int StuNum)
 	: StuNum(StuNum) {
-	int score, i=0;
+	int score;
 	do {
 		inp >> score;
 		if(score == -1) break;
 		this->Scores.push_back(score);
-		++i;
 	} while(true);
 	this->AssNum = this->Scores.size();
 	sort(this->Scores.begin(), this->Scores.end()); // 학생 개개인의 점수를 오름차순으로 미리 정렬
@@ -61,12 +60,12 @@ bool compare(const Student &a, const Student &b) {
 	if(a.getAssNum() != b.getAssNum())
 		return (a.getAssNum() > b.getAssNum()); // 제출횟수가 다른 경우
 	else {
-		int k=0, end;
+		int k = 0, end;
 		end = a.getAssNum() - 1;
 		while(k <= end && (a.getIthScore(k) == b.getIthScore(k)))
 			++k;
 		if(k <= end)
-			return a.getIthScore(k) > b.getIthScore(k); // 제출횟수는 같지만 최저점수가 다른 경우
+			return a.getIthScore(k) > b.getIthScore(k); // 제출횟수는 같지만 정렬된 상태의 점수 패턴이 다른경우
 		else
 			return a.getStuNum() < b.getStuNum(); // 제출횟수와 점수가 모두 같은 경우
 	}

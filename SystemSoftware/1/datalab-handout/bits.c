@@ -316,7 +316,9 @@ int divpwr2(int x, int n) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+	int ret;
+	ret = ~x + 0x1;
+  return ret;
 }
 /* 
  * isPositive - return 1 if x > 0, return 0 otherwise 
@@ -325,8 +327,12 @@ int negate(int x) {
  *   Max ops: 8
  *   Rating: 3
  */
-int isPositive(int x) {
-  return 2;
+int isPositive(int x) { // 01111111111
+	int sign, ret;
+	sign = (0x1 << 31) & x; // x가 음인경우 1000.., 0>=경우 0000..
+	ret = !(sign ^ x); // x가 1000..이 아닌 음인경우 0, x가 10000.. 인경우 1, x가 양인경우 0
+	ret = (!ret) & !(sign >> 31);
+  return ret;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -335,8 +341,7 @@ int isPositive(int x) {
  *   Max ops: 24
  *   Rating: 3
  */
-int isLessOrEqual(int x, int y) {
-  return 2;
+int isLessOrEqual(int x, int y) { // y + negate(x) 양 양 음 음 양 음 음 양
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
