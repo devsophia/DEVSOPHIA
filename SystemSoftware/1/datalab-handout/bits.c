@@ -457,5 +457,17 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+	int sign, frac, E, exp, expMask;
+	expMask = 0xff << 23;
+	exp = expMask & uf;
+	if(exp == expMask)
+		return uf;
+	sign = (0x1 << 31) & uf;
+	frac = (0x007fffff & uf);
+	if(exp == 0x0 && frac == 0x0)
+		return uf;
+	if(exp == 0x0)
+		return sign | (uf << 1);
+	exp = exp + (0x1 << 23);
+  return sign + exp + frac;
 }

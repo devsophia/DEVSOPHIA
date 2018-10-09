@@ -1,0 +1,17 @@
+	Correctness Results				Perf Results
+Points	Rating	Errors	Points	 Ops		Puzzle
+	1				1				0				2				4			bitAnd
+	2				2				0				2				3			getByte
+	3				3				0				2				6			logicalShift
+	4				4				0				2				31		bitCount
+	4				4				0				2				6			bang
+	1				1				0				2				1			tmin
+	2				2				0				2				6			fitsBits
+	2				2				0				2				15		divpwr2
+	2				2				0				2				2			negate
+	3				3				0				2				8			isPositive
+	3				3				0				2				16		isLessOrEqual
+	4				4				0				2				43		ilog2
+	2				2				0				2				8			float_neg
+	4				4				0				2				30		float_i2f
+	4				4				0				2				16		float_twice
