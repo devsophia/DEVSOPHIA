@@ -8,7 +8,6 @@ class Line { // 함수 한 줄을 나타내는 클래스
 private:
 	vector< string > line;
 	string name;
-	int len;
 public:
 	Line(ifstream &in) {
 		string s;
@@ -17,10 +16,6 @@ public:
 		for(i=0; in>>s && s!="$"; ++i)
 			this->line[i] = s;
 		this->name = this->line[0];
-		this->len = this->line.size();
-	}
-	int getLen() const {
-		return this->len;
 	}
 	string getName() const { // 함수의 이름을 얻음
 		return this->name;
@@ -68,10 +63,8 @@ int main()
 	vector< Line > prog; // 프로그램 전체
 	vector< vector<int> > stack; // 함수 스택
 	vector< vector<string> > record; // 실행 레코드
-	ifstream in;
-	in.open("function.inp");
-	ofstream out;
-	out.open("function.out");
+	ifstream in("function.inp");
+	ofstream out("function.out");
 	
 	in >> N >> k1 >> k2;
 	for(i=0; i<N; ++i) {
@@ -81,8 +74,6 @@ int main()
 
 	i=0; j=1;
 	while(!(i==0 && isEnd(prog[0].getJthName(j)))) {
-		if(j > prog[i].getLen() - 1)
-			j = prog[i].getLen() - 1;
 		string s = prog[i].getJthName(j); // i번째 함수에서 j번째 문자를 얻음
 		if(isFunc(s)) { // 문자가 함수로 점프하는 연산인가 ?
 			vector<int> stk(2);
@@ -119,7 +110,7 @@ int main()
 				<< record[k2-1][1] << endl;
 	}
 	else // DEADLOCK 조건에 의해 탈출했으면
-		out << "DEADLOCK" << endl;
+		out << "DEADLOCK";
 
 	in.close();
 	out.close();
