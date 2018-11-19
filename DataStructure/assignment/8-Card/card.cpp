@@ -3,7 +3,7 @@ using namespace std;
 
 // deck를 A, B로 나누고 하나씩 번갈아가며 다시 deck에 섞어넣는 함수
 void Shuffle(list< int > &deck) {
-	int mid, i;
+	int mid;
 	list< int > A;
 	list< int > B;
 	list< int >::iterator it;
@@ -25,7 +25,6 @@ void Shuffle(list< int > &deck) {
 			deck.splice(deck.end(), B, B.begin());
 	}
 }
-
 
 // beg번째부터 end번째까지 cut작업하는 함수
 void Cut(list< int > &deck, int beg, int end) {
