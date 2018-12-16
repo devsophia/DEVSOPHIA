@@ -137,7 +137,7 @@ Graph::~Graph() {
 
 int main(void)
 {
-	ifstream inp("meeting.inp");
+	ifstream inp("1.inp");
 	ofstream out("meeting.out");
 	Graph graph(inp);
 	graph.traverse();

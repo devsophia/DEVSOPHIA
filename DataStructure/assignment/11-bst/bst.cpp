@@ -1,151 +1,140 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/*  조교님께
-	템플릿에 대한 개념이 부족하여
-	연습할 겸 직접 구현해 보았습니다.
-*/
+class BST;
 
-class TreeNode {
+class Node {
 private:
-	int data;
-	TreeNode* pRight;
-	TreeNode* pLeft;
+	friend class BST;
+	string data;
+	Node *Left, *Right;
 public:
-	TreeNode(int data) : data(data),
-		pLeft(NULL), pRight(NULL) {}
-	const int getData() const {
-		return this->data;
-	}
-	TreeNode* getLeft() const {
-		return this->pLeft;
-	}
-	TreeNode* getRight() const {
-		return this->pRight;
-	}
-	void setLeft(TreeNode* pLeft) {
-		this->pLeft = pLeft;
-	}
-	void setRight(TreeNode* pRight) {
-		this->pRight = pRight;
-	}
-	void print(int l) {
-		if(this) {
-			this->pRight->print(l+1);
-			for(int i=0; i<l; ++i)
-				cout << "   ";
-			cout << this->data << endl;
-			this->pLeft->print(l+1);
-		}
-	}
-	void deAlloc() {
-		if(this) {
-			this->pLeft->deAlloc();
-			this->pRight->deAlloc();
-			delete(this);
-		}
-	}
+	Node(string data)
+		: data(data), Left(NULL), Right(NULL) {}
+	bool isLeaf() { return Left==NULL && Right==NULL; }
+	void depth(vector<string> &v, int depth, int k);
+	void leaf(vector<string> &v);
 };
+void Node::depth(vector<string> &v, int depth, int k) {
+	if(this->Left)
+		this->Left->depth(v, depth+1, k);
+	if(this->Right)
+		this->Right->depth(v, depth+1, k);
+	if(depth == k)
+		v.push_back(this->data);
+}
+void Node::leaf(vector<string> &v) {
+	if(this->isLeaf()) {
+		v.push_back(this->data);
+		return;
+	}
+	if(this->Left)
+		this->Left->leaf(v);
+	if(this->Right)
+		this->Right->leaf(v);
+}
 
 class BST {
 private:
-	TreeNode* root;
+	Node *root;
 public:
-	BST() : root(NULL) {}
-	void insert(int n);
-	void find(int n) const;
-	void print() const;
-	~BST();
+	BST() {
+		this->root = new Node("a");
+	}
+	void insert(string data);
+	void erase(string data);
+	vector<string> depth(int k);
+	vector<string> leaf();
 };
-
-void BST::insert(int n) {
-	TreeNode* pNode = new TreeNode(n);
-	if(this->root == NULL)
-		this->root = pNode;
-	else {
-		TreeNode* pCurrent = this->root;
-		TreeNode* pNext = NULL;
-		while((pNext=n<pCurrent->getData()?
-			pCurrent->getLeft():pCurrent->getRight())
-			!=NULL)
-			pCurrent = pNext;
-		if(n<pCurrent->getData())
-			pCurrent->setLeft(pNode);
-		else
-			pCurrent->setRight(pNode);
-	}
-	
-}
-
-void BST::find(int n) const {
-	int depth = 0;
-	TreeNode* pCurrent = this->root;
-	while(pCurrent!=NULL && pCurrent->getData()!=n) {
-		pCurrent = n<pCurrent->getData()?
-			pCurrent->getLeft():pCurrent->getRight();
-		depth++;
-	}
-	if(pCurrent==NULL)
-		cout << "No node exists whose data is " <<
-			n << "." << endl;
+void BST::insert(string data) {
+	Node *pNew = new Node(data);
+	Node *pParent, *pChild;
+	bool left;
+	pChild = this->root;
+	do {
+		pParent = pChild;
+		left = data.compare(pParent->data) < 0;
+		pChild = left ? pParent->Left : pParent->Right;
+	} while(pChild != NULL);
+	if(left)
+		pParent->Left = pNew;
 	else
-		cout << "Number " << n << " exists at depth " <<
-			depth << "." << endl;
+		pParent->Right = pNew;
+}
+void BST::erase(string data) {
+}
+vector<string> BST::depth(int k) {
+	vector<string> v;
+	this->root->depth(v, 0, k);
+	return v;
+}
+vector<string> BST::leaf() {
+	vector<string> v;
+	this->root->leaf(v);
+	return v;
 }
 
-void BST::print() const {
-	this->root->print(0);
-}
-
-BST::~BST() {
-	this->root->deAlloc();
-}
-
-void guide() {
-	cout << endl;
-	cout << "Type one of instructions below." << endl;
-	cout << "{exit, insert x, find x, print}" << endl;
-	cout << "=>";
-}
-
-int getCase(string inst) {
-	string sequence[] = {"exit", "insert", "find", "print"};
-	int i, size = sizeof(sequence)/sizeof(sequence[0]);
-	for(i=0; i<size; ++i)
-		if(sequence[i] == inst)
-			return i;
-	return -1;
-}
+int getCase(string inst);
+void print_depth(vector<string> &v, ofstream &out);
+void print_leaf(vector<string> &v, ofstream &out);
 
 int main(void)
 {
+	int N, k;
+	string inst, data;
 	BST bst;
-	string inst;
-	int num;
-	bool endFlag = false;
-	while(!endFlag) {
-		guide();
-		cin >> inst;
+	vector<string> d, l;
+	ifstream inp("1.inp");
+	ofstream out("bst.out");
+	inp >> N;
+	while(N--) {
+		inp >> inst;
 		switch(getCase(inst)) {
 		case 0:
-			cout << "Turning off machine.." << endl;
-			endFlag = true;
+			inp >> data;
+			bst.insert(data);
 			break;
 		case 1:
-			cin >> num;
-			bst.insert(num);
+			inp >> data;
+			bst.erase(data);
 			break;
 		case 2:
-			cin >> num;
-			bst.find(num);
+			inp >> k;
+			d = bst.depth(k);
+			print_depth(d, out);
 			break;
 		case 3:
-			bst.print();
+			l = bst.leaf();
+			print_leaf(l, out);
 			break;
 		default:
-			cout << "No such instruction." << endl;
-			cout << "Please try again." << endl;
+			out << "Wrong Instruction : " <<
+			inst << endl;
 		}
 	}
+	inp.close();
+	out.close();
 	return 0;
+}
+
+int getCase(string inst) {
+	string list[] = {"+", "-", "depth", "leaf"};
+	for(int i=0; i<sizeof(list)/sizeof(list[0]); ++i)
+		if(list[i] == inst)
+			return i;
+	return -1;
+}
+void print_depth(vector<string> &v, ofstream &out) {
+	if(v.size()==0) {
+		out << "NO" << endl;
+		return;
+	}
+	for(auto it=v.begin(); it!=v.end(); ++it)
+		out << *it << " ";
+	out << endl;
+}
+void print_leaf(vector<string> &v, ofstream &out) {
+	for(auto it=v.begin(); it!=v.end(); ++it)
+		out << *it << " ";
+	out << endl;
 }
